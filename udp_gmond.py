@@ -15,7 +15,7 @@ import time
 
 
 defaults = {
-    "slope"      : "positive",
+    "slope"      : "both",
     "time_max"   : 60,
     "format"     : "%d",
     "value_type" : "double",
