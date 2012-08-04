@@ -1,0 +1,31 @@
+# Gmond configuration for UDP metric module
+# Install to /etc/ganglia/conf.d
+
+modules {
+  module {
+    name = "udp_gmond"
+    language = "python"
+  }
+}
+
+collection_group {
+  collect_every = 60
+  time_threshold = 60
+  
+  metric {
+    name = "InDatagrams"
+    title = "Packets Received"
+  }
+  metric {
+    name = "InErrors"
+    title = "Packet Receive Errors"
+  }
+  metric {
+    name = "NoPorts"
+    title = "Packets to Unknown Port Received"
+  }
+  metric {
+    name = "OutDatagrams"
+    title = "Packets Sent"
+  }
+}
