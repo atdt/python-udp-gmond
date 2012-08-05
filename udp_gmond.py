@@ -9,10 +9,12 @@
 """
 from __future__ import print_function
 
-import ast
-import functools
-import time
+import logging
+from ast import literal_eval
+from threading import Timer
 
+
+UPDATE_INTERVAL = 5  # seconds
 
 defaults = {
     "slope"      : "both",
@@ -23,7 +25,6 @@ defaults = {
     "units"      : "packets"
 }
 
-
 udp_fields = {
     "InDatagrams"  : "packets received",
     "NoPorts"      : "packets to unknown port received",
@@ -31,29 +32,11 @@ udp_fields = {
     "OutDatagrams" : "packets sent"
 }
 
-
-def throttle(seconds):
-    """
-    Decorator; when decorated function is called, caches its return value and
-    sets a cooldown timer. Subsequent calls to the decorated function while the
-    cooldown timer is in effect receive the cached value.
-    """
-    last = dict(value=None, expires=0)
-    def outer(f):
-        @functools.wraps(f)
-        def inner():
-            now = time.time()
-            if now > last['expires']:
-                last['value'] = f()
-                last['expires'] = now + seconds
-            return last['value']
-        return inner
-    return outer
+netstats = {}
 
 
-@throttle(seconds=10)
-def netstats():
-    """Parse /proc/net/snmp like netstat does"""
+def get_netstats():
+    """Parse /proc/net/snmp"""
     with open('/proc/net/snmp', 'rt') as snmp:
         raw = {}
         for line in snmp:
@@ -64,9 +47,17 @@ def netstats():
     return dict((k, dict(zip(*vs))) for (k, vs) in raw.items())
 
 
+def update_stats():
+    """Update netstats and schedule the next run"""
+    netstats.update(get_netstats())
+    logging.info("Updated: %s", netstats['udp'])
+    Timer(UPDATE_INTERVAL, update_stats).start()
+
+
 def metric_handler(name):
     """Get value of particular metric; part of Gmond interface"""
-    return ast.literal_eval(netstats()['udp'][name])
+    logging.debug('metric_handler(): %s', name)
+    return literal_eval(netstats['udp'][name])
 
 
 def metric_init(params):
@@ -77,7 +68,9 @@ def metric_init(params):
         descriptor = dict(name=name, description=description)
         descriptor.update(defaults)
         descriptors.append(descriptor)
+    update_stats()
     return descriptors
+
 
 def metric_cleanup():
     """Teardown; part of Gmond interface"""
@@ -87,6 +80,7 @@ def metric_cleanup():
 if __name__ == '__main__':
     # When invoked as standalone script, run a self-test by querying each
     # metric descriptor and printing it out.
+    logging.basicConfig(level=logging.DEBUG)
     for metric in metric_init({}):
         value = metric['call_back'](metric['name'])
         print(( "%s => " + metric['format'] ) % ( metric['name'], value ))

@@ -9,23 +9,27 @@ modules {
 }
 
 collection_group {
-  collect_every = 60
+  collect_every = 10
   time_threshold = 60
   
   metric {
     name = "InDatagrams"
     title = "Packets Received"
+    value_threshold = 0
   }
   metric {
     name = "InErrors"
     title = "Packet Receive Errors"
+    value_threshold = 0
   }
   metric {
     name = "NoPorts"
     title = "Packets to Unknown Port Received"
+    value_threshold = 0
   }
   metric {
     name = "OutDatagrams"
     title = "Packets Sent"
+    value_threshold = 0
   }
 }
