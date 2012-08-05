@@ -20,16 +20,16 @@ defaults = {
     "slope"      : "both",
     "time_max"   : 60,
     "format"     : "%d",
-    "value_type" : "double",
-    "groups"     : "udp",
+    "value_type" : "uint",
+    "groups"     : "network,udp",
     "units"      : "packets"
 }
 
 udp_fields = {
-    "InDatagrams"  : "packets received",
-    "NoPorts"      : "packets to unknown port received",
-    "InErrors"     : "packet receive errors",
-    "OutDatagrams" : "packets sent"
+    "InDatagrams"  : "UDP Packets Received",
+    "NoPorts"      : "UDP Packets to Unknown Port Received",
+    "InErrors"     : "UDP Packet Receive Errors",
+    "OutDatagrams" : "UDP Packets Sent"
 }
 
 netstats = {}
