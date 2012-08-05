@@ -19,7 +19,7 @@ UPDATE_INTERVAL = 5  # seconds
 defaults = {
     "slope"      : "both",
     "time_max"   : 60,
-    "format"     : "%d",
+    "format"     : "%u",
     "value_type" : "uint",
     "groups"     : "network,udp",
     "units"      : "packets"
